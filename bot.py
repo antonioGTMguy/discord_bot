@@ -99,16 +99,15 @@ async def on_ready():
     """Called when the bot is ready and connected to Discord."""
     print(f"Bot is ready! Logged in as {client.user}")
 
-    # Schedule daily reminder at 11:38 PM PT (temporary for testing)
-    PT = pytz.timezone("America/Los_Angeles")
+    # Schedule daily reminder at 9:00 AM ET
     scheduler.add_job(
         send_daily_reminder,
-        CronTrigger(hour=23, minute=38, timezone=PT),
+        CronTrigger(hour=9, minute=0, timezone=ET),
         id="daily_reminder",
         replace_existing=True,
     )
     scheduler.start()
-    print("Scheduler started - daily reminders at 11:38 PM PT")
+    print("Scheduler started - daily reminders at 9:00 AM ET")
 
 
 if __name__ == "__main__":
