@@ -311,7 +311,7 @@ async def on_ready():
     """Called when the bot is ready and connected to Discord."""
     print(f"Bot is ready! Logged in as {client.user}")
 
-    # Schedule daily reminder at 9:00 AM ET
+    # Schedule daily reminder at 8:00 AM ET
     scheduler.add_job(
         send_daily_reminder,
         CronTrigger(hour=8, minute=0, timezone=ET),
@@ -319,7 +319,7 @@ async def on_ready():
         replace_existing=True,
     )
     scheduler.start()
-    print("Scheduler started - daily reminders at 9:00 AM ET")
+    print("Scheduler started - daily reminders at 8:00 AM ET")
 
 
 if __name__ == "__main__":
