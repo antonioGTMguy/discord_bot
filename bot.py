@@ -24,26 +24,9 @@ DEADLINES = [
     ("Pear Demo Day", datetime(2026, 4, 2)),
 ]
 
-# Business quotes
-BUSINESS_QUOTES = [
+# Fallback quotes in case API fails
+FALLBACK_QUOTES = [
     "The way to get started is to quit talking and begin doing. – Walt Disney",
-    "Success is not final, failure is not fatal: it is the courage to continue that counts. – Winston Churchill",
-    "Don't be afraid to give up the good to go for the great. – John D. Rockefeller",
-    "I find that the harder I work, the more luck I seem to have. – Thomas Jefferson",
-    "Success usually comes to those who are too busy to be looking for it. – Henry David Thoreau",
-    "Opportunities don't happen. You create them. – Chris Grosser",
-    "The only place where success comes before work is in the dictionary. – Vidal Sassoon",
-    "If you really look closely, most overnight successes took a long time. – Steve Jobs",
-    "The road to success and the road to failure are almost exactly the same. – Colin R. Davis",
-    "I have not failed. I've just found 10,000 ways that won't work. – Thomas Edison",
-    "It's fine to celebrate success but it is more important to heed the lessons of failure. – Bill Gates",
-    "The secret of getting ahead is getting started. – Mark Twain",
-    "Risk more than others think is safe. Dream more than others think is practical. – Howard Schultz",
-    "In the end, a vision without the ability to execute it is probably a hallucination. – Steve Case",
-    "Your most unhappy customers are your greatest source of learning. – Bill Gates",
-    "The best time to plant a tree was 20 years ago. The second best time is now. – Chinese Proverb",
-    "Move fast and break things. Unless you are breaking stuff, you are not moving fast enough. – Mark Zuckerberg",
-    "What would you do if you weren't afraid? – Sheryl Sandberg",
     "Stay hungry, stay foolish. – Steve Jobs",
     "Chase the vision, not the money; the money will end up following you. – Tony Hsieh",
 ]
@@ -59,7 +42,27 @@ client = discord.Client(intents=intents)
 scheduler = AsyncIOScheduler()
 
 
-def get_countdown_message() -> str:
+async def generate_business_quote() -> str:
+    """Generate a business quote using Claude API."""
+    if not claude_client:
+        return random.choice(FALLBACK_QUOTES)
+
+    try:
+        response = claude_client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=150,
+            messages=[{
+                "role": "user",
+                "content": "Generate a single inspiring business or entrepreneurship quote. It can be a real quote from a famous entrepreneur/business leader with attribution, or an original inspiring thought. Keep it concise (1-2 sentences max). Return ONLY the quote, nothing else."
+            }],
+        )
+        return response.content[0].text.strip()
+    except Exception as e:
+        print(f"Error generating quote: {e}")
+        return random.choice(FALLBACK_QUOTES)
+
+
+async def get_countdown_message() -> str:
     """Generate the countdown message for all deadlines."""
     today = datetime.now().date()
 
@@ -75,10 +78,8 @@ def get_countdown_message() -> str:
         else:
             lines.append(f"{name}: Deadline passed!")
 
-    # Add a unique quote for each day (seeded by date so no repeats)
-    day_seed = today.toordinal()
-    daily_random = random.Random(day_seed)
-    quote = daily_random.choice(BUSINESS_QUOTES)
+    # Generate a quote using Claude
+    quote = await generate_business_quote()
     lines.append(f"\n{quote}")
 
     return "\n".join(lines)
@@ -95,7 +96,7 @@ async def send_daily_reminder():
         print(f"Error: Could not find channel with ID {CHANNEL_ID}")
         return
 
-    message = get_countdown_message()
+    message = await get_countdown_message()
     await channel.send(message)
     print(f"Sent daily reminder at {datetime.now(ET)}")
 
