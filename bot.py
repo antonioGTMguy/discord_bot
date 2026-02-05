@@ -58,7 +58,7 @@ async def generate_business_quote() -> str:
 
     try:
         response = claude_client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-opus-4-6",
             max_tokens=150,
             messages=[{
                 "role": "user",
@@ -118,7 +118,7 @@ async def summarize_article(url: str) -> str:
 
     try:
         response = claude_client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-opus-4-6",
             max_tokens=1024,
             messages=[{
                 "role": "user",
@@ -547,7 +547,7 @@ Please respond helpfully and concisely."""
 
             # Call Claude API with tools if available
             response = claude_client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-opus-4-6",
                 max_tokens=1024,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
@@ -577,7 +577,7 @@ Please respond helpfully and concisely."""
 
                 # Get next response from Claude
                 response = claude_client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-opus-4-6",
                     max_tokens=1024,
                     system=system_prompt,
                     messages=messages,
